@@ -1,0 +1,4 @@
+FROM alpine:3.7
+LABEL Nagvis
+RUN apk add --no-cache bash 
+ENTRYPOINT ["bash"]
