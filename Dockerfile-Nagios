@@ -1,4 +1,24 @@
 FROM alpine:3.7
-LABEL Nagios
-RUN apk add --no-cache bash 
+LABEL version="0.0.1"
+
+RUN apk add --no-cache bash gd-dev gcc wget unzip lighttpd php postfix build-base openrc
+
+RUN cd /tmp && \
+    wget -O nagioscore.tar.gz https://github.com/NagiosEnterprises/nagioscore/archive/nagios-4.4.3.tar.gz && \
+    tar xzf nagioscore.tar.gz && \
+    cd /tmp/nagioscore-nagios-4.4.3/ && \
+    ./configure --with-command-group=nagcmd  && \
+    make all && \
+    make install-groups-users && \
+    usermod -a -G nagios apache && \
+    make install && \
+    addgroup nagcmd && \
+    adduser -D nagios && \
+    addgroup nagios nagcmd && \
+    addgroup apache nagcmd && \ 
+    sed -i 's/^#.*\(include \"mod_fastcgi\.conf\"\)/\1/g' /etc/lighttpd/lighttpd.conf && \
+    sed -i 's/\/usr\/bin\/php-cgi/\/usr\/bin\/php-cgi5/' /etc/lighttpd/mod_fastcgi.conf && \
+     
+
+
 ENTRYPOINT ["bash"]
